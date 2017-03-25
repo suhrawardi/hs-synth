@@ -1,0 +1,15 @@
+Name:                Synthi
+Version:             0.1
+Description:         Playing around
+License:             GPL
+License-file:        LICENSE
+Author:              Jarra
+Maintainer:          suhrawardi@gmail.com
+Build-Type:          Simple
+Cabal-Version:       >=1.2
+
+Executable synthi
+  Main-is:           Main.hs
+  Build-Depends:     base >= 3 && < 5,
+                     numeric-prelude,
+                     synthesizer-core
