@@ -1,4 +1,4 @@
-module Plain (playMono, sineMono, sineMono2, sineStereo, oscillator, saw, cubic,
+module Plain (playMono, sineMono, sineStereo, oscillator, saw, cubic,
               sawMorph, laser, ping, fmPing, filterSaw) where
 
 import qualified Synthesizer.Plain.Play as Play
@@ -24,10 +24,6 @@ playStereo = Play.stereoToInt16 (44100::Double)
 sineMono :: IO ExitCode
 sineMono =
    playMono (map sin [0::Double,0.1..])
-
-sineMono2 :: IO ExitCode
-sineMono2 =
-   playMono (map sin [0::Double,1.0..])
 
 sineStereo :: IO ExitCode
 sineStereo = do

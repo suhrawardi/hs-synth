@@ -49,7 +49,6 @@ rFilterSaw :: IO ExitCode
 rFilterSaw =
    play filterSawSig
 
-
 playState :: Sig.T Double -> IO ExitCode
 playState =
    Play.simple SigSt.hPut SoxOpt.none 44100 .

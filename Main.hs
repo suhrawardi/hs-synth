@@ -5,8 +5,8 @@ import Realtime
 import UI
 import FRP.UISF
 
-main = filterSaw
+-- main = rFilterPingState
 
--- main :: IO ()
--- main = runUI (defaultUIParams {uiSize=(200, 520), uiCloseOnEsc=True}) $
---   (leftRight $ (bottomUp $ timeEx)) >>> freq
+main :: IO ()
+main = runUI (defaultUIParams {uiSize=(200, 520), uiCloseOnEsc=True}) $
+  (leftRight $ (bottomUp $ timeEx)) >>> freq

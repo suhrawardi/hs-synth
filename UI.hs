@@ -12,5 +12,6 @@ timeEx = title "time" $ accumTime >>> display <<< spacer
 
 freq :: UISF () ()
 freq = title "Freq" $ topDown $ proc _ -> do
-  a <- spacer <<< title "all"  (hiSlider 1 (0,255) 128) -< ()
-  title "freq" display -< a
+  rec a <- spacer <<< title "all"  (hiSlider 1 (0,255) 128) -< ()
+      r <- title "freq" display -< a
+  returnA -< ()
