@@ -11,5 +11,11 @@ Cabal-Version:       >=1.2
 Executable synthi
   Main-is:           Main.hs
   Build-Depends:     base >= 3 && < 5,
+                     Euterpea,
                      numeric-prelude,
+                     sox,
+                     storablevector,
+                     transformers,
+                     UISF >= 0.4,
+                     utility-ht,
                      synthesizer-core

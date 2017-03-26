@@ -1,4 +1,4 @@
-module Plain (sineMono, sineStereo, oscillator, saw, cubic,
+module Plain (playMono, sineMono, sineMono2, sineStereo, oscillator, saw, cubic,
               sawMorph, laser, ping, fmPing, filterSaw) where
 
 import qualified Synthesizer.Plain.Play as Play
@@ -10,8 +10,6 @@ import qualified Synthesizer.Plain.Filter.NonRecursive as Filt
 import qualified Synthesizer.Plain.Filter.Recursive as FiltRec
 import qualified Synthesizer.Plain.Filter.Recursive.Universal as UniFilter
 import qualified Synthesizer.Basic.Wave as Wave
-
-import qualified Algebra.Module as Module -- needed for Haddock
 
 import System.Exit (ExitCode, )
 import NumericPrelude
@@ -26,6 +24,10 @@ playStereo = Play.stereoToInt16 (44100::Double)
 sineMono :: IO ExitCode
 sineMono =
    playMono (map sin [0::Double,0.1..])
+
+sineMono2 :: IO ExitCode
+sineMono2 =
+   playMono (map sin [0::Double,1.0..])
 
 sineStereo :: IO ExitCode
 sineStereo = do
