@@ -9,8 +9,8 @@ import ChildSong
 import Mine
 
 -- main = mLaser
--- main = playM reverbedSignal
-main = mOscillator3
+main = playM reverbedSignal
+-- main = mOscillator3
 
 playM f = playStereo $ f  (44100::Double)
 
