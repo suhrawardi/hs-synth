@@ -1,4 +1,4 @@
-module Plain (playMono, sineMono, sineStereo, oscillator, saw, cubic,
+module Plain (playMono, playStereo, sineMono, sineStereo, oscillator, saw, cubic,
               sawMorph, laser, ping, fmPing, filterSaw) where
 
 import qualified Synthesizer.Plain.Play as Play
