@@ -46,7 +46,7 @@ data MyNote = FilterSaw Double Pitch.T
 type Resonance = Time
 
 pattern :: Music.T MyNote
-pattern = makePattern patternList (Osci.staticSaw 0 0.1)
+pattern = makePattern patternList (Osci.staticSine 0 0.1)
 
 makePattern :: [Music.Dur -> Resonance -> Melody.T Resonance] ->
    [Resonance] -> Music.T MyNote
@@ -57,11 +57,28 @@ makePattern mel reson = line
             mel reson)
 
 patternList :: [Music.Dur -> Resonance -> Melody.T Resonance]
-patternList = concatMap (List.take 160 . cycle) (
-   [[a 7, b 8, b 7, a 8],
-    [a 9, c 6, c 9, b 6],
-    [a 9, c 8, a 9, b 8],
-    [a 7, b 9, b 7, a 9]])
+patternList = concatMap (List.take 16 . cycle) (
+   [[c 2, b 4, b 4, c 3],
+    [c 4, c 6, c 2, b 4],
+    [c 5, b 4, b 4, c 3],
+    [c 4, c 6, c 5, b 4],
+    [c 2, b 4, b 4, c 3],
+    [c 4, c 6, c 2, b 4],
+    [c 5, b 4, b 4, c 3],
+    [c 4, c 6, c 5, b 4],
+    [c 2, b 4, b 4, c 3],
+    [c 4, c 6, c 2, b 4],
+    [c 6, c 5, c 6, b 5],
+    [c 5, b 4, b 4, c 3],
+    [c 4, c 6, c 5, b 4],
+    [c 6, c 5, c 6, b 5],
+    [c 2, b 4, b 4, c 3],
+    [c 4, c 6, c 2, b 4],
+    [c 6, c 5, c 6, b 5],
+    [c 5, b 4, b 4, c 3],
+    [c 4, c 6, c 5, b 4],
+    [c 6, c 5, c 6, b 5],
+    [c 5, b 5, b 5, c 5]])
 
 
 ----------- Configuration of the player -----------
@@ -71,7 +88,7 @@ noteToSignal ::
    Time -> Volume -> Pitch.Relative -> MyNote -> Note.T Volume Volume
 noteToSignal detune _ trans (FilterSaw reso p) =
    Note.Cons (\sampleRate ->
-      filterSaw sampleRate ((2000::Time)  *  2 ** (0.05*reso))
+      filterSaw sampleRate ((2000::Time)  *  2 ** (0.5*reso))
          (detune * Note.pitchFromStd trans p))
 
 -- Volume type arises from Haskore
@@ -80,7 +97,7 @@ songToSignalMono sampleRate dif song =
    MusicSignal.fromMusic
       sampleRate (noteToSignal dif)
       FancyPf.map
-      (MusicSignal.contextMetro 400 qn)
+      (MusicSignal.contextMetro 120 qn)
       song
 
 songSignal :: Time -> Sig.T Volume
@@ -91,8 +108,7 @@ allpassChannel sampleRate sign x =
    in  Allpass.cascade order
           (map ((\(Allpass.Parameter k) -> Allpass.Parameter (sign*k)) .
                 (Allpass.flangerParameter order))
-               (Ctrl.exponential2 (3*sampleRate) (2000/sampleRate))
-               -- (repeat (50/sampleRate))
+               (Ctrl.exponential2 (3*sampleRate) (200/sampleRate))
            ) x
 
 stereoSignal :: Time -> Sig.T (Volume,Volume)
@@ -100,17 +116,5 @@ stereoSignal sampleRate =
    zip (allpassChannel sampleRate ( 1 :: Volume) (songSignal sampleRate))
        (allpassChannel sampleRate (-1 :: Volume) (songSignal sampleRate))
 
-reverb :: Time -> Sig.T (Volume,Volume) -> Sig.T (Volume,Volume)
-reverb sampleRate =
-   Comb.runMulti
-      (List.take 8 (randomRs (round(0.01*sampleRate::Time),
-                              round(0.005*sampleRate::Time))
-                             (mkStdGen 12354)))
-      (0.1::Volume)
-
 reverbedSignal :: Time -> Sig.T (Volume,Volume)
--- reverbedSignal sampleRate = stereoSignal sampleRate
-reverbedSignal sampleRate =
-   reverb sampleRate
-      (stereoSignal sampleRate ++
-       List.replicate (round (200000000000000*sampleRate)) zero)
+reverbedSignal = stereoSignal
