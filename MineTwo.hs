@@ -35,8 +35,9 @@ type Resonance = Time
 
 sampleRate = 44100::Double
 
-pattern :: Music.T MyNote
-pattern = makePattern patternList (Osci.staticSaw 0 0.01)
+pattern :: String -> Music.T MyNote
+pattern "noise" = makePattern patternListNoise (Osci.staticSaw 0 0.01)
+pattern "bell" = makePattern patternListBell (Osci.staticSaw 0 0.0001)
 
 makePattern :: [Music.Dur -> Resonance -> Melody.T Resonance] ->
    [Resonance] -> Music.T MyNote
@@ -46,8 +47,13 @@ makePattern mel reson = line
                         (n qn r))
             mel reson)
 
-patternList :: [Music.Dur -> Resonance -> Melody.T Resonance]
-patternList = concatMap (List.take 16 . cycle) (
+patternListBell :: [Music.Dur -> Resonance -> Melody.T Resonance]
+patternListBell = concatMap (List.take 160 . cycle) (
+   [[c 1, b 2, b 1, c 2],
+    [c 1, b 2, b 1, c 2]])
+
+patternListNoise :: [Music.Dur -> Resonance -> Melody.T Resonance]
+patternListNoise = concatMap (List.take 16 . cycle) (
    [[c 5, b 4, b 4, c 6],
     [c 6, b 4, b 4, c 6],
     [c 5, b 4, b 4, c 6],
@@ -73,21 +79,21 @@ noteToSignal "bell" detune _ trans (MineTwo reso p) =
    Note.Cons (\sampleRate ->
       Instr.bell sampleRate (detune * Note.pitchFromStd trans p))
 
-songToSignalMono :: String -> Volume -> Music.T MyNote -> Sig.T Volume
-songToSignalMono key dif song =
+songToSignalMono :: String -> Time -> Volume -> Music.T MyNote -> Sig.T Volume
+songToSignalMono key time dif song =
    MusicSignal.fromMusic
       sampleRate (noteToSignal key dif)
       FancyPf.map
-      (MusicSignal.contextMetro 240 qn)
+      (MusicSignal.contextMetro time qn)
       song
 
-songSignal :: String -> Sig.T Volume
-songSignal key = songToSignalMono key 1 pattern
+songSignal :: String -> Time -> Sig.T Volume
+songSignal key time = songToSignalMono key time 1 $ pattern key
 
 stereoSignal :: Sig.T (Volume,Volume)
 stereoSignal =
-   zip (allpassChannel ( 1 :: Volume) (songSignal "noise"))
-       (allpassChannel (-1 :: Volume) (songSignal "bell"))
+   zip (allpassChannel ( 1 :: Volume) (songSignal "noise" 40))
+       (allpassChannel (-1 :: Volume) (songSignal "bell" 120))
 
 allpassChannel sign x =
    let order = 10
