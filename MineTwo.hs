@@ -65,28 +65,29 @@ patternList = concatMap (List.take 16 . cycle) (
     [c 5, b 5, b 5, c 5]])
 
 noteToSignal ::
-   Time -> Volume -> Pitch.Relative -> MyNote -> Note.T Volume Volume
-noteToSignal detune _ trans (MineTwo reso p) =
+   String -> Time -> Volume -> Pitch.Relative -> MyNote -> Note.T Volume Volume
+noteToSignal "noise" detune _ trans (MineTwo reso p) =
    Note.Cons (\sampleRate ->
       Instr.noiseBass sampleRate (detune * Note.pitchFromStd trans p))
---      Instr.filterSaw sampleRate ((2000::Time)  *  2 ** (0.5*reso))
---         (detune * Note.pitchFromStd trans p))
+noteToSignal "bell" detune _ trans (MineTwo reso p) =
+   Note.Cons (\sampleRate ->
+      Instr.bell sampleRate (detune * Note.pitchFromStd trans p))
 
-songToSignalMono :: Volume -> Music.T MyNote -> Sig.T Volume
-songToSignalMono dif song =
+songToSignalMono :: String -> Volume -> Music.T MyNote -> Sig.T Volume
+songToSignalMono key dif song =
    MusicSignal.fromMusic
-      sampleRate (noteToSignal dif)
+      sampleRate (noteToSignal key dif)
       FancyPf.map
-      (MusicSignal.contextMetro 120 qn)
+      (MusicSignal.contextMetro 240 qn)
       song
 
-songSignal :: Sig.T Volume
-songSignal = songToSignalMono 1 pattern
+songSignal :: String -> Sig.T Volume
+songSignal key = songToSignalMono key 1 pattern
 
 stereoSignal :: Sig.T (Volume,Volume)
 stereoSignal =
-   zip (allpassChannel ( 1 :: Volume) songSignal)
-       (allpassChannel (-1 :: Volume) songSignal)
+   zip (allpassChannel ( 1 :: Volume) (songSignal "noise"))
+       (allpassChannel (-1 :: Volume) (songSignal "bell"))
 
 allpassChannel sign x =
    let order = 10
